@@ -4,16 +4,29 @@
     {
       "src": "api/index.ts",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/cron.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
+      "src": "/api/cron",
+      "dest": "api/cron.ts"
+    },
+    {
       "src": "/(.*)",
       "dest": "api/index.ts"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 15 * * *"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   }
 }
-

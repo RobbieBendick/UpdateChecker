@@ -15,6 +15,15 @@ export async function runUpdateChecker(): Promise<void> {
     // Load previous titles
     const stored = loadStoredTitles();
 
+    // Print stored titles if we have any
+    if (stored.valheim || stored.vintageStory) {
+      console.log('\n=== Previously Stored Titles ===');
+      console.log('Valheim:', stored.valheim || 'Not available');
+      console.log('Vintage Story:', stored.vintageStory || 'Not available');
+      console.log('Last Updated:', stored.lastUpdated);
+      console.log('================================\n');
+    }
+
     // Scrape both websites
     const [valheimResult, vintageStoryResult] = await Promise.all([
       scrapeValheimNews(),
@@ -81,28 +90,54 @@ export async function runUpdateChecker(): Promise<void> {
       });
     }
 
-    // Save current titles for next run
-    const currentTitles = {
-      valheim: valheimResult.title,
-      vintageStory: vintageStoryResult.title,
-      lastUpdated: new Date().toISOString(),
-    };
-    saveStoredTitles(currentTitles);
+    // Only save if titles have changed
+    const valheimChanged =
+      valheimResult.title !== null && valheimResult.title !== stored.valheim;
+    const vintageStoryChanged =
+      vintageStoryResult.title !== null &&
+      vintageStoryResult.title !== stored.vintageStory;
 
-    // Print stored titles summary
-    console.log('\n=== Stored Titles Summary ===');
-    console.log('Valheim:', currentTitles.valheim || 'Not available');
-    console.log(
-      'Vintage Story:',
-      currentTitles.vintageStory || 'Not available'
-    );
-    console.log('Last Updated:', currentTitles.lastUpdated);
-    console.log('===========================\n');
+    if (
+      valheimChanged ||
+      vintageStoryChanged ||
+      !stored.valheim ||
+      !stored.vintageStory
+    ) {
+      // Save current titles for next run
+      const currentTitles = {
+        valheim: valheimResult.title,
+        vintageStory: vintageStoryResult.title,
+        lastUpdated: new Date().toISOString(),
+      };
+      saveStoredTitles(currentTitles);
 
-    Logger.info('Update checker completed', {
-      namespace,
-      storedTitles: currentTitles,
-    });
+      // Print stored titles summary
+      console.log('\n=== Stored Titles Summary ===');
+      console.log('Valheim:', currentTitles.valheim || 'Not available');
+      console.log(
+        'Vintage Story:',
+        currentTitles.vintageStory || 'Not available'
+      );
+      console.log('Last Updated:', currentTitles.lastUpdated);
+      console.log('===========================\n');
+
+      Logger.info('Update checker completed - titles saved', {
+        namespace,
+        storedTitles: currentTitles,
+        valheimChanged,
+        vintageStoryChanged,
+      });
+    } else {
+      console.log('\n=== No Changes Detected ===');
+      console.log('Titles unchanged - storage not updated');
+      console.log('===========================\n');
+
+      Logger.info('Update checker completed - no changes', {
+        namespace,
+        valheim: valheimResult.title,
+        vintageStory: vintageStoryResult.title,
+      });
+    }
   } catch (error: any) {
     Logger.error(`Error in update checker: ${error.message}`, {
       namespace,
