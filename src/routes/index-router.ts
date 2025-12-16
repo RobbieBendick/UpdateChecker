@@ -51,11 +51,13 @@ router.get('/test', async (req: Request, res: Response) => {
 router.get('/test-discord', async (req: Request, res: Response) => {
   try {
     // Test 1: Simple message
-    await sendDiscordMessage('🧪 **Test Message**\n\nThis is a test message from the UpdateChecker bot!');
-    
+    await sendDiscordMessage(
+      '🧪 **Test Message**\n\nThis is a test message from the UpdateChecker bot!'
+    );
+
     // Test 2: Update notification format
     await sendUpdateNotification('Valheim', 'Test Title', 'Old Test Title');
-    
+
     return sendResponse({
       req,
       res,

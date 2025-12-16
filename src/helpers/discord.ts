@@ -1,78 +1,31 @@
-import { Client, GatewayIntentBits, TextChannel } from 'discord.js';
+import axios from 'axios';
 import Logger from '../config/log';
 
 const namespace = 'discord';
 
-let client: Client | null = null;
-let channel: TextChannel | null = null;
-
 /**
- * Initialize Discord bot client
+ * Send a message to Discord via webhook
  */
-export async function initializeDiscordBot(): Promise<void> {
-  const token = process.env.DISCORD_BOT_TOKEN;
-  const channelId = process.env.DISCORD_CHANNEL_ID;
+async function sendDiscordWebhook(message: string): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
-  if (!token || !channelId) {
-    Logger.warn('Discord bot not configured - missing token or channel ID', {
-      namespace,
-    });
-    return;
-  }
-
-  try {
-    client = new Client({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
-    });
-
-    await client.login(token);
-
-    client.once('ready', async () => {
-      Logger.info('Discord bot logged in successfully', { namespace });
-
-      // Get the channel
-      const fetchedChannel = await client!.channels.fetch(channelId);
-      if (fetchedChannel && fetchedChannel.isTextBased()) {
-        channel = fetchedChannel as TextChannel;
-        Logger.info('Discord channel ready', { namespace, channelId });
-      } else {
-        Logger.error('Discord channel not found or not a text channel', {
-          namespace,
-          channelId,
-        });
-      }
-    });
-
-    client.on('error', (error: unknown) => {
-      Logger.error(`Discord bot error: ${(error as Error).message}`, {
+  if (!webhookUrl) {
+    Logger.warn(
+      'Discord webhook not configured - missing DISCORD_WEBHOOK_URL',
+      {
         namespace,
-        error: error as Error,
-      });
-    });
-  } catch (error: any) {
-    Logger.error(`Failed to initialize Discord bot: ${error.message}`, {
-      namespace,
-      error,
-    });
-  }
-}
-
-/**
- * Send a message to Discord channel
- */
-export async function sendDiscordMessage(message: string): Promise<void> {
-  if (!channel) {
-    Logger.warn('Discord channel not available, skipping message', {
-      namespace,
-    });
+      }
+    );
     return;
   }
 
   try {
-    await channel.send(message);
-    Logger.info('Discord message sent successfully', { namespace });
+    await axios.post(webhookUrl, {
+      content: message,
+    });
+    Logger.info('Discord webhook message sent successfully', { namespace });
   } catch (error: any) {
-    Logger.error(`Failed to send Discord message: ${error.message}`, {
+    Logger.error(`Failed to send Discord webhook: ${error.message}`, {
       namespace,
       error,
     });
@@ -97,5 +50,12 @@ export async function sendUpdateNotification(
         : 'https://www.vintagestory.at/blog.html/news/'
     }`;
 
-  await sendDiscordMessage(message);
+  await sendDiscordWebhook(message);
+}
+
+/**
+ * Send a test message to Discord
+ */
+export async function sendDiscordMessage(message: string): Promise<void> {
+  await sendDiscordWebhook(message);
 }
