@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import Logger from '../config/log';
 
 const namespace = 'scraper';
@@ -70,16 +71,21 @@ export async function scrapeVintageStoryNews(): Promise<ScrapeResult> {
     const newsUrl = 'https://www.vintagestory.at/blog.html/news/';
     Logger.info(`Fetching Vintage Story news from ${newsUrl}`, { namespace });
 
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+
     // Launch Puppeteer browser
     browser = await puppeteer.launch({
       headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-      ],
+      args: isVercel
+        ? chromium.args
+        : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu',
+          ],
+      executablePath: isVercel ? await chromium.executablePath() : undefined,
     });
 
     const page = await browser.newPage();
