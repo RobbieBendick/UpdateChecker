@@ -1,0 +1,42 @@
+{
+  "name": "update-checker",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node --watch dist/src/app.js",
+    "prestart": "npx tsc",
+    "dev": "nodemon src/app.ts"
+  },
+  "nodemonConfig": {
+    "ignore": ["data/*", "data/**/*", "src/server/logs/*", "src/server/logs/**/*"]
+  },
+  "engines": {
+    "node": "20.10.0",
+    "npm": "10.2.3"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "body-parser": "^2.2.0",
+    "cheerio": "^1.1.2",
+    "compression": "^1.8.1",
+    "cookie-parser": "~1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "node-cron": "^4.2.1",
+    "puppeteer": "^24.33.0",
+    "winston": "^3.18.3"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.10.0",
+    "@types/node-cron": "^3.0.11",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
