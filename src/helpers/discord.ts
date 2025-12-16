@@ -18,7 +18,6 @@ async function sendDiscordWebhook(message: string): Promise<void> {
     );
     return;
   }
-
   try {
     await axios.post(webhookUrl, {
       content: message,
