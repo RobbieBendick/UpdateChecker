@@ -17,7 +17,6 @@ let app = express();
 dotenv.config();
 
 // Discord webhooks don't need initialization - they're just HTTP requests
-// Remove the initializeDiscordBot import and call
 
 // Configure CORS
 const corsOptions = {
