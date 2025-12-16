@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { runUpdateChecker } from '../helpers/cron-job';
+import { sendDiscordMessage, sendUpdateNotification } from '../helpers/discord';
 import { sendResponse } from '../shared/helpers/response';
 
 const router = Router();
@@ -42,6 +43,38 @@ router.get('/test', async (req: Request, res: Response) => {
       },
       status: 500,
       namespace: 'index-router.test',
+    });
+  }
+});
+
+// Test endpoint for Discord bot
+router.get('/test-discord', async (req: Request, res: Response) => {
+  try {
+    // Test 1: Simple message
+    await sendDiscordMessage('🧪 **Test Message**\n\nThis is a test message from the UpdateChecker bot!');
+    
+    // Test 2: Update notification format
+    await sendUpdateNotification('Valheim', 'Test Title', 'Old Test Title');
+    
+    return sendResponse({
+      req,
+      res,
+      message: 'Discord test messages sent! Check your Discord channel.',
+      data: {
+        timestamp: new Date().toISOString(),
+      },
+      namespace: 'index-router.test-discord',
+    });
+  } catch (error: any) {
+    return sendResponse({
+      req,
+      res,
+      message: 'Discord test failed',
+      data: {
+        error: error.message,
+      },
+      status: 500,
+      namespace: 'index-router.test-discord',
     });
   }
 });

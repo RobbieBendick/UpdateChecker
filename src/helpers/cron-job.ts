@@ -2,6 +2,7 @@ import * as cron from 'node-cron';
 import Logger from '../config/log';
 import { scrapeValheimNews, scrapeVintageStoryNews } from './scraper';
 import { loadStoredTitles, saveStoredTitles } from './storage';
+import { sendUpdateNotification } from '../helpers/discord';
 
 const namespace = 'cron-job';
 
@@ -44,6 +45,12 @@ export async function runUpdateChecker(): Promise<void> {
           old: stored.valheim,
           new: valheimResult.title,
         });
+        // Send Discord notification
+        await sendUpdateNotification(
+          'Valheim',
+          valheimResult.title,
+          stored.valheim
+        );
       } else if (!stored.valheim && valheimResult.title) {
         Logger.info('First Valheim title recorded', {
           namespace,
@@ -76,6 +83,12 @@ export async function runUpdateChecker(): Promise<void> {
           old: stored.vintageStory,
           new: vintageStoryResult.title,
         });
+        // Send Discord notification
+        await sendUpdateNotification(
+          'Vintage Story',
+          vintageStoryResult.title,
+          stored.vintageStory
+        );
       } else if (!stored.vintageStory && vintageStoryResult.title) {
         Logger.info('First Vintage Story title recorded', {
           namespace,

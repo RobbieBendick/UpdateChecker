@@ -9,12 +9,22 @@ import Logger from './config/log';
 import { initializeCronJob } from './helpers/cron-job';
 import bindRoutes from './routes/bind-routes';
 import { ErrorResponse, sendErrorResponse } from './shared/helpers/response';
+import { initializeDiscordBot } from './helpers/discord';
 
 const namespace: string = 'app';
 
 let app = express();
 
 dotenv.config();
+
+// Initialize Discord bot (only if not on Vercel, or handle Vercel differently)
+if (process.env.VERCEL !== '1' && !process.env.VERCEL_ENV) {
+  initializeDiscordBot().catch(error => {
+    Logger.error(`Failed to initialize Discord bot: ${error.message}`, {
+      namespace: 'app',
+    });
+  });
+}
 
 // Configure CORS
 const corsOptions = {

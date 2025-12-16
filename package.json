@@ -36,7 +36,8 @@
     "node-cron": "^4.2.1",
     "puppeteer": "^24.33.0",
     "puppeteer-core": "^24.33.0",
-    "winston": "^3.18.3"
+    "winston": "^3.18.3",
+    "discord.js": "^14.15.3"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
