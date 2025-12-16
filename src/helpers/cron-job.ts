@@ -12,8 +12,8 @@ export async function runUpdateChecker(): Promise<void> {
   Logger.info('Starting update checker cron job', { namespace });
 
   try {
-    // Load previous titles
-    const stored = loadStoredTitles();
+    // Load previous titles (now async)
+    const stored = await loadStoredTitles();
 
     // Print stored titles if we have any
     if (stored.valheim || stored.vintageStory) {
@@ -109,7 +109,7 @@ export async function runUpdateChecker(): Promise<void> {
         vintageStory: vintageStoryResult.title,
         lastUpdated: new Date().toISOString(),
       };
-      saveStoredTitles(currentTitles);
+      await saveStoredTitles(currentTitles); // Now async
 
       // Print stored titles summary
       console.log('\n=== Stored Titles Summary ===');
