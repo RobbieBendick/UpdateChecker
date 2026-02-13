@@ -62,8 +62,9 @@ export async function scrapeValheimNews(): Promise<ScrapeResult> {
 }
 
 /**
- * Scrapes Vintage Story blog page for H4 with class "ipsDataItem_title" within div within LI with class "cCmsRecord_row"
- * Uses Puppeteer to bypass Cloudflare protection
+ * Scrapes Vintage Story blog page: first news record (li.cCmsRecord_row), first <a> text only.
+ * Uses only the first link label to avoid including pagination numbers (1, 2, 3...) from other <a> tags.
+ * Uses Puppeteer to bypass Cloudflare protection.
  */
 export async function scrapeVintageStoryNews(): Promise<ScrapeResult> {
   let browser;
@@ -114,15 +115,15 @@ export async function scrapeVintageStoryNews(): Promise<ScrapeResult> {
     // Parse with cheerio
     const $ = cheerio.load(html);
 
-    // Find H4 with class "ipsDataItem_title" within div within LI with class "cCmsRecord_row"
-    const titleElement = $(
-      'li.cCmsRecord_row div h4.ipsDataItem_title'
-    ).first();
-    const title = titleElement.text().trim();
+    // Get the first news record row, then only the first <a> inside it (the title link).
+    // This avoids picking up pagination links (1, 2, 3, 4, ...) which are also <a> tags.
+    const firstRow = $('li.cCmsRecord_row').first();
+    const titleLink = firstRow.find('a').first();
+    const title = titleLink.text().trim();
 
     if (!title) {
       Logger.warn(
-        'No title found with selector li.cCmsRecord_row div h4.ipsDataItem_title',
+        'No title found: first li.cCmsRecord_row had no first <a>',
         { namespace }
       );
       return {
